@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "lib": ["esnext", "dom"],
+    "target": "ES2019",
+    "strictNullChecks": true,
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    // "strict": true,
+    // "diagnostics": true,
+  },
+  "include": []
+}

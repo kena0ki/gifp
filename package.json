@@ -1,0 +1,30 @@
+{
+  "name": "gifp",
+  "version": "0.0.0",
+  "description": "online gif player",
+  "type": "module",
+  "scripts": {
+    "build": "ts-node -P ./script/tsconfig.json ./script/build.ts",
+    "watch": "chokidar \"src/**/*\" -c \"npm run build\" --initial --debounce 5000",
+    "serve": "serve",
+    "start": "concurrently -p '{time} {name}' -t 'HH:mm:ss.SSS' -c green,yellow  npm:watch npm:serve"
+  },
+  "author": "kena0ki",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kena0ki/gifp.git"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^16.9.1",
+    "@types/yargs": "^17.0.2",
+    "@typescript-eslint/eslint-plugin": "^4.31.0",
+    "@typescript-eslint/parser": "^4.31.0",
+    "chokidar-cli": "^3.0.0",
+    "concurrently": "^6.2.1",
+    "esbuild": "^0.12.26",
+    "eslint": "^7.32.0",
+    "typescript": "^4.4.2",
+    "yargs": "^17.1.1"
+  }
+}
