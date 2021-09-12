@@ -9,17 +9,19 @@ body {
   margin: 0;
   height: 100%;
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   overflow-x: auto;
 }
 #app {
   width: 100%;
+  height: 100%;
   margin: auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
 }
 html, button, input, select, textarea,
 .pure-g [class *= "pure-u"] {

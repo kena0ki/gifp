@@ -1,8 +1,4 @@
 <template>
-  <div class="header-container dummy">
-    <h1 class="header-title">gifp</h1>
-    <div class="header-subtitle"><span>simple online gif player</span></div>
-  </div>
   <div class="header-container">
     <h1 class="header-title">gifp</h1>
     <div class="header-subtitle"><span>simple online gif player</span></div>
@@ -36,48 +32,36 @@ export default defineComponent({
 
 <style>
 .header-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
   width: 100%;
-  padding: 1rem 0;
+  padding: .5rem 0;
   background-color: white;
-  box-shadow: inset 0 0 3em rgba(0, 0, 0,.1);
-  z-index: 1;
-}
-.header-container.dummy {
-  position: relative;
-  z-index: -1
+  box-shadow: inset 0 0 3rem rgba(0, 0, 0,.1);
+  text-align: center;
+  margin-bottom: 1rem;
 }
 .header-title {
   margin: auto .5rem;
 }
 .header-subtitle {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  white-space: pre-wrap;
-  width: 90%;
+  width: 100%;
 }
 
 .main-area {
   width: 100%;
   max-width: 700px;
   margin: auto;
+  flex-grow: 1;
 }
 
 .footer-container {
   width: 100%;
-  text-align: right;
   background-color: white;
-  box-shadow: inset 0 0 3em rgba(0, 0, 0,.1);
-  z-index: 1;
-  padding: .5em;
+  box-shadow: inset 0 0 3rem rgba(0, 0, 0,.1);
+  padding: .5rem 0;
+  display: flex;
+  justify-content: end;
 }
 .footer {
-  margin: 0 1em;
+  margin-right: 1rem;
 }
 </style>

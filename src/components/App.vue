@@ -1,8 +1,6 @@
 <template>
   <img id="cors-allowed-gif" src="https://raw.githubusercontent.com/k0kubun/sqldef/master/demo.gif"
     crossorigin alt="gif" style="max-width: 100%;">
-  <img id="cors-banned-gif" src="https://github.com/k0kubun/sqldef/raw/master/demo.gif"
-    crossorigin alt="gif" style="max-width: 100%;">
   <button id="load" >Load</button>
 </template>
 
