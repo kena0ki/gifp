@@ -1,4 +1,9 @@
 <template>
+  <img id="cors-allowed-gif" src="https://raw.githubusercontent.com/k0kubun/sqldef/master/demo.gif"
+    crossorigin alt="gif" style="max-width: 100%;">
+  <img id="cors-banned-gif" src="https://github.com/k0kubun/sqldef/raw/master/demo.gif"
+    crossorigin alt="gif" style="max-width: 100%;">
+  <button id="load" >Load</button>
 </template>
 
 <script lang="ts">
@@ -6,10 +11,30 @@ import { ref, defineComponent, onMounted } from 'vue';
 export default defineComponent({
   name: 'App',
   setup() {
+    onMounted(() => {
+      const load = document.getElementById('load') as HTMLButtonElement;
+      const img1 = document.getElementById('cors-allowed-gif') as HTMLImageElement;
+      const img2 = document.getElementById('cors-banned-gif') as HTMLImageElement;
+      load.addEventListener('click', () => {
+        console.log(getDataUrl(img1));
+        console.log(getDataUrl(img2));
+      });
+    });
   },
   methods: {
   },
 });
+function getDataUrl(img: HTMLImageElement) {
+   // Create canvas
+   const canvas = document.createElement('canvas');
+   const ctx = canvas.getContext('2d')!;
+   // Set width and height
+   canvas.width = img.width;
+   canvas.height = img.height;
+   // Draw the image
+   ctx.drawImage(img, 0, 0);
+   return canvas.toDataURL('image/jpeg');
+}
 </script>
 
 <style>
