@@ -1,22 +1,4 @@
 <template>
-  <div class="input-area">
-    <h2>Input</h2>
-    <p class="instruction">Step1. Input a create statement here.</p>
-    <form class="options-form pure-form">
-      <div class="input-area-create-statement-container">
-        <div id="input-area-create-statement" class="input-area-create-statement" />
-      </div>
-      <div class="spacer-1em" />
-    </form>
-  </div>
-  <hr>
-  <div class="output-area">
-    <div class="output-header">
-      <h2>Output</h2>
-      <p>Step3. Click the generate button.</p>
-    </div>
-  </div>
-  <div class="spacer-2em" />
 </template>
 
 <script lang="ts">
