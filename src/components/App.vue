@@ -2,105 +2,100 @@
   <div class="spacer-1rem"></div>
   <div>
     <input id="gif-url" value="https://raw.githubusercontent.com/k0kubun/sqldef/master/demo.gif" />
-    <button id="load" >Load</button>
+    <button id="load" @click="onLoadClick">Load</button>
   </div>
   <div>
     <input id="progress-bar" type="range" />
     <button id="play" >Play</button>
   </div>
   <div class="spacer-1rem"></div>
-  <div id="gif-area" class="gif-area">
+  <div id="gif-area" class="gif-area" @drop="onGifAreaDrop" @dragover="onGifAreaDragover">
     <img id="gif" crossorigin alt="gif">
-    <canvas id="cvs"></canvas>
+    <canvas ref="cvs"></canvas>
   </div>
   <div class="spacer-1rem"></div>
 </template>
 
-<script lang="ts">
-import { ref, defineComponent, onMounted } from 'vue';
+<script lang="ts" setup>
+import { ref, onMounted } from 'vue';
 import { parseGIF, decompressFrames, ParsedFrame } from 'gifuct-js'
-export default defineComponent({
-  name: 'App',
-  setup() {
-    onMounted(() => {
-      const play = document.getElementById('play') as HTMLButtonElement;
-      const load = document.getElementById('load') as HTMLButtonElement;
-      const img = document.getElementById('gif') as HTMLImageElement;
-      load.addEventListener('click', () => {
-        const url = document.getElementById('gif-url') as HTMLInputElement;
-        img.src = url.value;
-      });
-      const gifArea = document.getElementById('gif-area') as HTMLDivElement;
-      const cvs = document.getElementById('cvs') as HTMLCanvasElement;
-      const ctx = cvs.getContext('2d')!;
-      const tempCanvas = document.createElement('canvas');
-      const tempCtx = tempCanvas.getContext('2d')!;
-      // const gifCanvas = document.createElement('canvas');
-      // const gifCtx = gifCanvas.getContext('2d')!;
-      const playing: boolean = false;
-      let frameImageData: ImageData;
-      gifArea.addEventListener('drop', (ev) => {
-        console.log('File(s) dropped');
-        ev.preventDefault();
-        const num = ev.dataTransfer?.items?.length;
-        if (num && num > 1) {
-          console.warn('More than one file was selected.')
-        }
-        const item = ev.dataTransfer?.items[0];
-        if (item?.kind !== 'file') {
-          console.error('This is not a file');
-          return;
-        }
-        const file = ev.dataTransfer?.items[0].getAsFile();
-        if (!file) {
-          console.error('No file was selected');
-          return;
-        }
-        file.arrayBuffer().then(buf => {
-          const gif = parseGIF(buf);
-          const frames = decompressFrames(gif, true);
-          if (frames.length === 0) {
-            throw new Error('This file doesn\'t seem to be a gif.');
-          }
-          cvs.width = frames[0].dims.width;
-          cvs.height = frames[0].dims.height;
 
-          drawPatch(frames[0]);
-          function drawPatch(frame: ParsedFrame) {
-            const dims = frame.dims
+const play = document.getElementById('play') as HTMLButtonElement;
 
-            if (
-              !frameImageData ||
-              dims.width != frameImageData.width ||
-              dims.height != frameImageData.height
-            ) {
-              tempCanvas.width = dims.width
-              tempCanvas.height = dims.height
-              frameImageData = tempCtx.createImageData(dims.width, dims.height)
-            }
+const load = document.getElementById('load') as HTMLButtonElement;
+const img = document.getElementById('gif') as HTMLImageElement;
+function onLoadClick() {
+  const url = document.getElementById('gif-url') as HTMLInputElement;
+  img.src = url.value;
+};
 
-            // set the patch data as an override
-            frameImageData.data.set(frame.patch)
+const cvs = ref<HTMLCanvasElement>();
+const tempCanvas = document.createElement('canvas');
+const tempCtx = tempCanvas.getContext('2d')!;
+// const gifCanvas = document.createElement('canvas');
+// const gifCtx = gifCanvas.getContext('2d')!;
+const playing: boolean = false;
+let frameImageData: ImageData;
+function onGifAreaDrop(ev: DragEvent) {
+  console.log('File(s) dropped');
+  ev.preventDefault();
+  const num = ev.dataTransfer?.items?.length;
+  if (num && num > 1) {
+    console.warn('More than one file was selected.')
+  }
+  const item = ev.dataTransfer?.items[0];
+  if (item?.kind !== 'file') {
+    console.error('This is not a file');
+    return;
+  }
+  const file = ev.dataTransfer?.items[0].getAsFile();
+  if (!file) {
+    console.error('No file was selected');
+    return;
+  }
+  file.arrayBuffer().then(buf => {
+    const gif = parseGIF(buf);
+    const frames = decompressFrames(gif, true);
+    if (frames.length === 0) {
+      throw new Error('This file doesn\'t seem to be a gif.');
+    }
+    cvs.value!.width = frames[0].dims.width;
+    cvs.value!.height = frames[0].dims.height;
 
-            // draw the patch back over the canvas
-            tempCtx.putImageData(frameImageData, 0, 0)
+    drawPatch(frames[0]);
+    function drawPatch(frame: ParsedFrame) {
+      const dims = frame.dims
 
-            ctx.drawImage(tempCanvas, dims.left, dims.top)
-          }
-        }).catch(e => {
-          console.error(e);
-        });
-      });
-      gifArea.addEventListener('dragover', (ev) => {
-        console.log('File(s) in drop zone');
-        // Prevent default behavior (Prevent file from being opened)
-        ev.preventDefault();
-      });
-    });
-  },
-  methods: {
-  },
-});
+      if (
+        !frameImageData ||
+        dims.width != frameImageData.width ||
+        dims.height != frameImageData.height
+      ) {
+        tempCanvas.width = dims.width
+        tempCanvas.height = dims.height
+        frameImageData = tempCtx.createImageData(dims.width, dims.height)
+      }
+
+      // set the patch data as an override
+      frameImageData.data.set(frame.patch)
+
+      // draw the patch back over the canvas
+      tempCtx.putImageData(frameImageData, 0, 0)
+
+      const ctx = cvs.value!.getContext('2d')!;
+      ctx.drawImage(tempCanvas, dims.left, dims.top)
+    }
+  }).catch(e => {
+    console.error(e);
+  });
+};
+
+function onGifAreaDragover(ev: DragEvent) {
+  console.log('File(s) in drop zone');
+  // Prevent default behavior (Prevent file from being opened)
+  ev.preventDefault();
+};
+
 function getDataUrl(img: HTMLImageElement) {
    // Create canvas
    const canvas = document.createElement('canvas');
