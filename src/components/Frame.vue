@@ -3,7 +3,7 @@
     <h1 class="header-title">gifp</h1>
     <div class="header-subtitle"><span>simple online gif player</span></div>
   </div>
-  <a href="https://github.com/kena0ki/gifp">
+  <a href="https://github.com/kena0ki/gifp" target="_brank">
     <img class="gh-ribbon" src="../assets/forkme_right_red_aa0000.svg">
   </a>
   <div class="main-area">
@@ -11,7 +11,7 @@
   </div>
   <div class="footer-container">
     <div class="footer">Created by 
-      <a href="https://github.com/kena0ki">
+      <a href="https://github.com/kena0ki" target="_brank">
         kena0ki
       </a>
     </div>
@@ -37,7 +37,6 @@ export default defineComponent({
   background-color: white;
   box-shadow: inset 0 0 3rem rgba(0, 0, 0,.1);
   text-align: center;
-  margin-bottom: 1rem;
 }
 .header-title {
   margin: auto .5rem;
@@ -47,10 +46,10 @@ export default defineComponent({
 }
 
 .main-area {
+  overflow: auto;
   width: 100%;
-  max-width: 700px;
-  margin: auto;
   flex-grow: 1;
+  text-align: center;
 }
 
 .footer-container {
@@ -63,5 +62,15 @@ export default defineComponent({
 }
 .footer {
   margin-right: 1rem;
+}
+
+.gh-ribbon {
+  display: block;
+  width: 80px;
+  height: 80px;
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 1;
 }
 </style>

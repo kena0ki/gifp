@@ -1,7 +1,14 @@
 <template>
-  <img id="cors-allowed-gif" src="https://raw.githubusercontent.com/k0kubun/sqldef/master/demo.gif"
-    crossorigin alt="gif" style="max-width: 100%;">
-  <button id="load" >Load</button>
+  <div class="spacer-1rem"></div>
+  <div>
+    <input id="gif-url" value="https://raw.githubusercontent.com/k0kubun/sqldef/master/demo.gif" />
+    <button id="load" >Load</button>
+  </div>
+  <div class="spacer-1rem"></div>
+  <div class="gif-area">
+    <img id="gif" crossorigin alt="gif">
+  </div>
+  <div class="spacer-1rem"></div>
 </template>
 
 <script lang="ts">
@@ -11,11 +18,10 @@ export default defineComponent({
   setup() {
     onMounted(() => {
       const load = document.getElementById('load') as HTMLButtonElement;
-      const img1 = document.getElementById('cors-allowed-gif') as HTMLImageElement;
-      const img2 = document.getElementById('cors-banned-gif') as HTMLImageElement;
+      const img = document.getElementById('gif') as HTMLImageElement;
       load.addEventListener('click', () => {
-        console.log(getDataUrl(img1));
-        console.log(getDataUrl(img2));
+        const url = document.getElementById('gif-url') as HTMLInputElement;
+        img.src = url.value;
       });
     });
   },
@@ -36,6 +42,16 @@ function getDataUrl(img: HTMLImageElement) {
 </script>
 
 <style>
+.gif-area {
+  min-width: 300px;
+  min-height: 300px;
+}
+.spacer-1rem {
+  height: 1rem;
+}
+.spacer-2rem {
+  height: 2rem;
+}
 .input-area {
   text-align: center;
 }
@@ -91,12 +107,6 @@ function getDataUrl(img: HTMLImageElement) {
   white-space: pre;
   box-shadow: inset 0px 0px 1px 1px #eee;
 }
-.spacer-1em {
-  height: 1em;
-}
-.spacer-2em {
-  height: 2em;
-}
 .column-options-add,
 .column-options-del {
   margin-left: 1em;
@@ -124,15 +134,6 @@ function getDataUrl(img: HTMLImageElement) {
   height: 80vh;
 }
 
-.gh-ribbon {
-  display: block;
-  width: 80px;
-  height: 80px;
-  position: fixed;
-  top: 0;
-  right: 0;
-  z-index: 1;
-}
 .isa_info, .isa_success, .isa_warning, .isa_error {
     margin: 0.5em 0px;
     padding: 0.6em;
