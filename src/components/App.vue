@@ -4,24 +4,97 @@
     <input id="gif-url" value="https://raw.githubusercontent.com/k0kubun/sqldef/master/demo.gif" />
     <button id="load" >Load</button>
   </div>
+  <div>
+    <input id="progress-bar" type="range" />
+    <button id="play" >Play</button>
+  </div>
   <div class="spacer-1rem"></div>
-  <div class="gif-area">
+  <div id="gif-area" class="gif-area">
     <img id="gif" crossorigin alt="gif">
+    <canvas id="cvs"></canvas>
   </div>
   <div class="spacer-1rem"></div>
 </template>
 
 <script lang="ts">
 import { ref, defineComponent, onMounted } from 'vue';
+import { parseGIF, decompressFrames, ParsedFrame } from 'gifuct-js'
 export default defineComponent({
   name: 'App',
   setup() {
     onMounted(() => {
+      const play = document.getElementById('play') as HTMLButtonElement;
       const load = document.getElementById('load') as HTMLButtonElement;
       const img = document.getElementById('gif') as HTMLImageElement;
       load.addEventListener('click', () => {
         const url = document.getElementById('gif-url') as HTMLInputElement;
         img.src = url.value;
+      });
+      const gifArea = document.getElementById('gif-area') as HTMLDivElement;
+      const cvs = document.getElementById('cvs') as HTMLCanvasElement;
+      const ctx = cvs.getContext('2d')!;
+      const tempCanvas = document.createElement('canvas');
+      const tempCtx = tempCanvas.getContext('2d')!;
+      // const gifCanvas = document.createElement('canvas');
+      // const gifCtx = gifCanvas.getContext('2d')!;
+      const playing: boolean = false;
+      let frameImageData: ImageData;
+      gifArea.addEventListener('drop', (ev) => {
+        console.log('File(s) dropped');
+        ev.preventDefault();
+        const num = ev.dataTransfer?.items?.length;
+        if (num && num > 1) {
+          console.warn('More than one file was selected.')
+        }
+        const item = ev.dataTransfer?.items[0];
+        if (item?.kind !== 'file') {
+          console.error('This is not a file');
+          return;
+        }
+        const file = ev.dataTransfer?.items[0].getAsFile();
+        if (!file) {
+          console.error('No file was selected');
+          return;
+        }
+        file.arrayBuffer().then(buf => {
+          const gif = parseGIF(buf);
+          const frames = decompressFrames(gif, true);
+          if (frames.length === 0) {
+            throw new Error('This file doesn\'t seem to be a gif.');
+          }
+          cvs.width = frames[0].dims.width;
+          cvs.height = frames[0].dims.height;
+
+          drawPatch(frames[0]);
+          function drawPatch(frame: ParsedFrame) {
+            const dims = frame.dims
+
+            if (
+              !frameImageData ||
+              dims.width != frameImageData.width ||
+              dims.height != frameImageData.height
+            ) {
+              tempCanvas.width = dims.width
+              tempCanvas.height = dims.height
+              frameImageData = tempCtx.createImageData(dims.width, dims.height)
+            }
+
+            // set the patch data as an override
+            frameImageData.data.set(frame.patch)
+
+            // draw the patch back over the canvas
+            tempCtx.putImageData(frameImageData, 0, 0)
+
+            ctx.drawImage(tempCanvas, dims.left, dims.top)
+          }
+        }).catch(e => {
+          console.error(e);
+        });
+      });
+      gifArea.addEventListener('dragover', (ev) => {
+        console.log('File(s) in drop zone');
+        // Prevent default behavior (Prevent file from being opened)
+        ev.preventDefault();
       });
     });
   },
@@ -45,6 +118,7 @@ function getDataUrl(img: HTMLImageElement) {
 .gif-area {
   min-width: 300px;
   min-height: 300px;
+  background-color: #FFD2D2;
 }
 .spacer-1rem {
   height: 1rem;
