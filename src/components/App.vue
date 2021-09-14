@@ -2,15 +2,16 @@
   <div class="spacer-1rem"></div>
   <div>
     <input id="gif-url" value="https://raw.githubusercontent.com/k0kubun/sqldef/master/demo.gif" />
-    <button id="load" @click="onLoadClick">Load</button>
+    <button id="load" @click="onClickLoad">Load</button>
   </div>
   <div>
-    <input id="progress-bar" type="range" />
-    <button id="play" >Play</button>
+    <input id="progress-bar" type="range" @change="onChangeProgressBar" :value="frameIdx" :max="maxFrameIdx" />
+    <button id="play" v-if="!isPlaying" @click="onClickPlay" :disabled="frames.length<1">Play</button>
+    <button id="stop" v-else @click="onClickStop">Stop</button>
   </div>
   <div class="spacer-1rem"></div>
-  <div id="gif-area" class="gif-area" @drop="onGifAreaDrop" @dragover="onGifAreaDragover">
-    <img id="gif" crossorigin alt="gif">
+  <div id="gif-area" @drop="onDropGifArea" @dragover="onDragoverGifArea">
+    <img ref="gif" crossorigin alt="gif">
     <canvas ref="cvs"></canvas>
   </div>
   <div class="spacer-1rem"></div>
@@ -20,23 +21,69 @@
 import { ref, onMounted } from 'vue';
 import { parseGIF, decompressFrames, ParsedFrame } from 'gifuct-js'
 
-const play = document.getElementById('play') as HTMLButtonElement;
-
-const load = document.getElementById('load') as HTMLButtonElement;
-const img = document.getElementById('gif') as HTMLImageElement;
-function onLoadClick() {
-  const url = document.getElementById('gif-url') as HTMLInputElement;
-  img.src = url.value;
-};
-
 const cvs = ref<HTMLCanvasElement>();
+const ctx = ref<CanvasRenderingContext2D>();
 const tempCanvas = document.createElement('canvas');
 const tempCtx = tempCanvas.getContext('2d')!;
+const frames = ref<ParsedFrame[]>([]);
+const frameIdx = ref(0);
+const maxFrameIdx = ref(100);
+const isPlaying = ref(false);
+
+onMounted(() =>{
+  ctx.value = cvs.value!.getContext('2d')!;
+});
+
+function onClickPlay() {
+  isPlaying.value=true;
+  loop();
+  function loop() {
+    if (!isPlaying.value) {
+      return;
+    }
+    frameIdx.value = frameIdx.value < frames.value!.length-1 ? frameIdx.value+1 : 0;
+    const frame = frames.value![frameIdx.value];
+    if (frame.disposalType === 2) {
+      tempCtx.clearRect(0,0,cvs.value!.width, cvs.value!.height);
+    }
+    const start = new Date().getTime();
+    _drawPatch(frame);
+    const end = new Date().getTime();
+    const diff = end-start;
+    console.log(diff);
+    setTimeout(() => {
+      requestAnimationFrame(loop);
+    }, 50);
+  } 
+}
+
+function onClickStop() {
+  isPlaying.value=false;
+}
+
+function onChangeProgressBar(evt: Event) {
+  isPlaying.value=false;
+  const input = evt.currentTarget as HTMLInputElement;
+  const idx = +input.value;
+  frameIdx.value = idx;
+  const frame = frames.value![idx];
+  setTimeout(() => {
+    console.log(tempCtx);
+    // tempCtx!.clearRect(0,0,cvs.value!.width, cvs.value!.height);
+    _drawPatch(frame);
+  });
+}
+
+function onClickLoad() {
+  const img = ref<HTMLImageElement>();
+  const url = document.getElementById('gif-url') as HTMLInputElement;
+  img.value!.src = url.value;
+};
+
 // const gifCanvas = document.createElement('canvas');
 // const gifCtx = gifCanvas.getContext('2d')!;
-const playing: boolean = false;
 let frameImageData: ImageData;
-function onGifAreaDrop(ev: DragEvent) {
+function onDropGifArea(ev: DragEvent) {
   console.log('File(s) dropped');
   ev.preventDefault();
   const num = ev.dataTransfer?.items?.length;
@@ -55,46 +102,48 @@ function onGifAreaDrop(ev: DragEvent) {
   }
   file.arrayBuffer().then(buf => {
     const gif = parseGIF(buf);
-    const frames = decompressFrames(gif, true);
-    if (frames.length === 0) {
+    frames.value = decompressFrames(gif, true);
+    if (frames.value.length === 0) {
       throw new Error('This file doesn\'t seem to be a gif.');
     }
-    cvs.value!.width = frames[0].dims.width;
-    cvs.value!.height = frames[0].dims.height;
+    maxFrameIdx.value=frames.value.length-1;
+    cvs.value!.width = frames.value[0].dims.width;
+    cvs.value!.height = frames.value[0].dims.height;
 
-    drawPatch(frames[0]);
-    function drawPatch(frame: ParsedFrame) {
-      const dims = frame.dims
+    _drawPatch(frames.value[0]);
 
-      if (
-        !frameImageData ||
-        dims.width != frameImageData.width ||
-        dims.height != frameImageData.height
-      ) {
-        tempCanvas.width = dims.width
-        tempCanvas.height = dims.height
-        frameImageData = tempCtx.createImageData(dims.width, dims.height)
-      }
-
-      // set the patch data as an override
-      frameImageData.data.set(frame.patch)
-
-      // draw the patch back over the canvas
-      tempCtx.putImageData(frameImageData, 0, 0)
-
-      const ctx = cvs.value!.getContext('2d')!;
-      ctx.drawImage(tempCanvas, dims.left, dims.top)
-    }
   }).catch(e => {
     console.error(e);
   });
 };
 
-function onGifAreaDragover(ev: DragEvent) {
+function onDragoverGifArea(ev: DragEvent) {
   console.log('File(s) in drop zone');
   // Prevent default behavior (Prevent file from being opened)
   ev.preventDefault();
 };
+
+function _drawPatch(frame: ParsedFrame) {
+  const dims = frame.dims
+
+  if (
+    !frameImageData ||
+    dims.width != frameImageData.width ||
+    dims.height != frameImageData.height
+  ) {
+    tempCanvas.width = dims.width
+    tempCanvas.height = dims.height
+    frameImageData = tempCtx.createImageData(dims.width, dims.height)
+  }
+
+  // set the patch data as an override
+  frameImageData.data.set(frame.patch)
+
+  // draw the patch back over the canvas
+  tempCtx.putImageData(frameImageData, 0, 0)
+
+  ctx.value!.drawImage(tempCanvas, dims.left, dims.top)
+}
 
 function getDataUrl(img: HTMLImageElement) {
    // Create canvas
@@ -110,7 +159,7 @@ function getDataUrl(img: HTMLImageElement) {
 </script>
 
 <style>
-.gif-area {
+#gif-area {
   min-width: 300px;
   min-height: 300px;
   background-color: #FFD2D2;
