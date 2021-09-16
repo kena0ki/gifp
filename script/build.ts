@@ -9,7 +9,6 @@ const argv = yargs(hideBin(process.argv)).parseSync();
 build({
   entryPoints: [argv.entryPoints as string || 'src/main.ts'],
   bundle: true,
-  minify: true,
   sourcemap: true,
   target: ['es2019'],
   outdir: argv.outdir as string || 'static',

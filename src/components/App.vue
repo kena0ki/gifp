@@ -13,6 +13,7 @@
   <div id="gif-area" @drop="onDropGifArea" @dragover="onDragoverGifArea">
     <img ref="gif" crossorigin alt="gif">
     <canvas ref="cvs"></canvas>
+    <canvas ref="cvs2"></canvas>
   </div>
   <div class="spacer-1rem"></div>
 </template>
@@ -29,6 +30,7 @@ const frames = ref<ParsedFrame[]>([]);
 const frameIdx = ref(0);
 const maxFrameIdx = ref(100);
 const isPlaying = ref(false);
+const cacheImages = ref<HTMLCanvasElement[]>([]);
 
 onMounted(() =>{
   ctx.value = cvs.value!.getContext('2d')!;
@@ -41,19 +43,16 @@ function onClickPlay() {
     if (!isPlaying.value) {
       return;
     }
+    const start = new Date().getTime();
     frameIdx.value = frameIdx.value < frames.value!.length-1 ? frameIdx.value+1 : 0;
     const frame = frames.value![frameIdx.value];
-    if (frame.disposalType === 2) {
-      tempCtx.clearRect(0,0,cvs.value!.width, cvs.value!.height);
-    }
-    const start = new Date().getTime();
-    _drawPatch(frame);
+    _drawPatch(frame, ctx.value!, tempCanvas);
     const end = new Date().getTime();
-    const diff = end-start;
-    console.log(diff);
+    const delay = frame.delay - (end-start);
+    console.log(delay);
     setTimeout(() => {
       requestAnimationFrame(loop);
-    }, 50);
+    }, delay);
   } 
 }
 
@@ -66,11 +65,9 @@ function onChangeProgressBar(evt: Event) {
   const input = evt.currentTarget as HTMLInputElement;
   const idx = +input.value;
   frameIdx.value = idx;
-  const frame = frames.value![idx];
   setTimeout(() => {
-    console.log(tempCtx);
-    // tempCtx!.clearRect(0,0,cvs.value!.width, cvs.value!.height);
-    _drawPatch(frame);
+    console.log(cacheImages.value);
+    ctx.value!.drawImage(cacheImages.value[idx],0,0);
   });
 }
 
@@ -80,6 +77,7 @@ function onClickLoad() {
   img.value!.src = url.value;
 };
 
+const cvs2 = ref<HTMLCanvasElement>();
 // const gifCanvas = document.createElement('canvas');
 // const gifCtx = gifCanvas.getContext('2d')!;
 let frameImageData: ImageData;
@@ -100,6 +98,7 @@ function onDropGifArea(ev: DragEvent) {
     console.error('No file was selected');
     return;
   }
+
   file.arrayBuffer().then(buf => {
     const gif = parseGIF(buf);
     frames.value = decompressFrames(gif, true);
@@ -109,9 +108,25 @@ function onDropGifArea(ev: DragEvent) {
     maxFrameIdx.value=frames.value.length-1;
     cvs.value!.width = frames.value[0].dims.width;
     cvs.value!.height = frames.value[0].dims.height;
+    _drawPatch(frames.value[0], ctx.value!, tempCanvas);
 
-    _drawPatch(frames.value[0]);
-
+    let i=0;
+    cacheImages.value = [];
+    // const cacheCanvas = document.createElement('canvas');
+    const cacheCanvas = cvs2.value!;
+    const cacheCtx = cacheCanvas.getContext('2d')!;
+    const cacheTempCanvas = document.createElement('canvas');
+    cacheCanvas.width = frames.value[0].dims.width;
+    cacheCanvas.height = frames.value[0].dims.height;
+    cache();
+    function cache() {
+      if (i >= frames.value.length) return;
+      console.log(i,frames.value.length);
+      _drawPatch(frames.value[i], cacheCtx, cacheTempCanvas);
+      cacheImages.value.push(cacheCanvas.cloneNode() as HTMLCanvasElement);
+      requestAnimationFrame(cache);
+      i++;
+    }
   }).catch(e => {
     console.error(e);
   });
@@ -123,26 +138,31 @@ function onDragoverGifArea(ev: DragEvent) {
   ev.preventDefault();
 };
 
-function _drawPatch(frame: ParsedFrame) {
-  const dims = frame.dims
+function _drawPatch(frm: ParsedFrame, cx: CanvasRenderingContext2D, tmpCvs: HTMLCanvasElement) {
+  const tmpCtx = tmpCvs.getContext('2d')!;
+  const dims = frm.dims;
+
+  if (frm.disposalType === 2) {
+    tmpCtx.clearRect(0,0,cvs.value!.width, cvs.value!.height);
+  }
 
   if (
     !frameImageData ||
     dims.width != frameImageData.width ||
     dims.height != frameImageData.height
   ) {
-    tempCanvas.width = dims.width
-    tempCanvas.height = dims.height
-    frameImageData = tempCtx.createImageData(dims.width, dims.height)
+    tmpCvs.width = dims.width;
+    tmpCvs.height = dims.height;
+    frameImageData = tmpCtx.createImageData(dims.width, dims.height);
   }
 
   // set the patch data as an override
-  frameImageData.data.set(frame.patch)
+  frameImageData.data.set(frm.patch)
 
   // draw the patch back over the canvas
   tempCtx.putImageData(frameImageData, 0, 0)
 
-  ctx.value!.drawImage(tempCanvas, dims.left, dims.top)
+  cx!.drawImage(tmpCvs, dims.left, dims.top)
 }
 
 function getDataUrl(img: HTMLImageElement) {
