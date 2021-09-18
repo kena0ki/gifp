@@ -112,7 +112,6 @@ function onDropGifArea(ev: DragEvent) {
 
     let i=0;
     cacheImages.value = [];
-    // const cacheCanvas = document.createElement('canvas');
     const cacheCanvas = cvs2.value!;
     const cacheCtx = cacheCanvas.getContext('2d')!;
     const cacheTempCanvas = document.createElement('canvas');
@@ -160,7 +159,7 @@ function _drawPatch(frm: ParsedFrame, cx: CanvasRenderingContext2D, tmpCvs: HTML
   frameImageData.data.set(frm.patch)
 
   // draw the patch back over the canvas
-  tempCtx.putImageData(frameImageData, 0, 0)
+  tmpCtx.putImageData(frameImageData, 0, 0)
 
   cx!.drawImage(tmpCvs, dims.left, dims.top)
 }
