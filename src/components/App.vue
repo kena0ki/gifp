@@ -32,7 +32,7 @@ const frameIdx = ref(0);
 const maxFrameIdx = ref(100);
 const isPlaying = ref(false);
 const cacheImages = ref<HTMLCanvasElement[]>([]);
-const blobs = ref<Blob[]>([]);
+const images = ref<HTMLImageElement[]>([]);
 
 onMounted(() =>{
   ctx.value = cvs.value!.getContext('2d')!;
@@ -68,8 +68,8 @@ function onChangeProgressBar(evt: Event) {
   const idx = +input.value;
   frameIdx.value = idx;
   setTimeout(() => {
-    console.log(cacheImages.value);
-    ctx.value!.drawImage(cacheImages.value[idx],0,0);
+    console.log(images.value);
+    ctx.value!.drawImage(images.value[idx],0,0);
   });
 }
 
@@ -114,7 +114,7 @@ function onDropGifArea(ev: DragEvent) {
 
     let i=0;
     cacheImages.value = [];
-    blobs.value =[];
+    images.value =[];
     const cacheCanvas = cvs2.value!;
     const cacheTempCanvas = document.createElement('canvas');
     cacheCanvas.width = frames.value[0].dims.width;
@@ -123,7 +123,11 @@ function onDropGifArea(ev: DragEvent) {
     function cache() {
       if (i >= frames.value.length) return;
       u.drawPatch(frames.value[i], cacheCanvas, cacheTempCanvas);
-      cacheCanvas.toBlob(blob => blobs.value.push(blob!));
+      cacheCanvas.toBlob(blob => {
+        const image = new Image;
+        image.src = URL.createObjectURL(blob);
+        images.value.push(image);
+      });
       cacheImages.value.push(cacheCanvas.cloneNode() as HTMLCanvasElement);
       requestAnimationFrame(cache);
       i++;
