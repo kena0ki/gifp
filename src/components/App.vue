@@ -21,6 +21,7 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
 import { parseGIF, decompressFrames, ParsedFrame } from 'gifuct-js'
+import u from '../util';
 
 const cvs = ref<HTMLCanvasElement>();
 const ctx = ref<CanvasRenderingContext2D>();
@@ -31,6 +32,7 @@ const frameIdx = ref(0);
 const maxFrameIdx = ref(100);
 const isPlaying = ref(false);
 const cacheImages = ref<HTMLCanvasElement[]>([]);
+const blobs = ref<Blob[]>([]);
 
 onMounted(() =>{
   ctx.value = cvs.value!.getContext('2d')!;
@@ -46,7 +48,7 @@ function onClickPlay() {
     const start = new Date().getTime();
     frameIdx.value = frameIdx.value < frames.value!.length-1 ? frameIdx.value+1 : 0;
     const frame = frames.value![frameIdx.value];
-    _drawPatch(frame, ctx.value!, tempCanvas);
+    u.drawPatch(frame, cvs.value!, tempCanvas);
     const end = new Date().getTime();
     const delay = frame.delay - (end-start);
     console.log(delay);
@@ -108,20 +110,20 @@ function onDropGifArea(ev: DragEvent) {
     maxFrameIdx.value=frames.value.length-1;
     cvs.value!.width = frames.value[0].dims.width;
     cvs.value!.height = frames.value[0].dims.height;
-    _drawPatch(frames.value[0], ctx.value!, tempCanvas);
+    u.drawPatch(frames.value[0], cvs.value!, tempCanvas);
 
     let i=0;
     cacheImages.value = [];
+    blobs.value =[];
     const cacheCanvas = cvs2.value!;
-    const cacheCtx = cacheCanvas.getContext('2d')!;
     const cacheTempCanvas = document.createElement('canvas');
     cacheCanvas.width = frames.value[0].dims.width;
     cacheCanvas.height = frames.value[0].dims.height;
     cache();
     function cache() {
       if (i >= frames.value.length) return;
-      console.log(i,frames.value.length);
-      _drawPatch(frames.value[i], cacheCtx, cacheTempCanvas);
+      u.drawPatch(frames.value[i], cacheCanvas, cacheTempCanvas);
+      cacheCanvas.toBlob(blob => blobs.value.push(blob!));
       cacheImages.value.push(cacheCanvas.cloneNode() as HTMLCanvasElement);
       requestAnimationFrame(cache);
       i++;
@@ -136,45 +138,6 @@ function onDragoverGifArea(ev: DragEvent) {
   // Prevent default behavior (Prevent file from being opened)
   ev.preventDefault();
 };
-
-function _drawPatch(frm: ParsedFrame, cx: CanvasRenderingContext2D, tmpCvs: HTMLCanvasElement) {
-  const tmpCtx = tmpCvs.getContext('2d')!;
-  const dims = frm.dims;
-
-  if (frm.disposalType === 2) {
-    tmpCtx.clearRect(0,0,cvs.value!.width, cvs.value!.height);
-  }
-
-  if (
-    !frameImageData ||
-    dims.width != frameImageData.width ||
-    dims.height != frameImageData.height
-  ) {
-    tmpCvs.width = dims.width;
-    tmpCvs.height = dims.height;
-    frameImageData = tmpCtx.createImageData(dims.width, dims.height);
-  }
-
-  // set the patch data as an override
-  frameImageData.data.set(frm.patch)
-
-  // draw the patch back over the canvas
-  tmpCtx.putImageData(frameImageData, 0, 0)
-
-  cx!.drawImage(tmpCvs, dims.left, dims.top)
-}
-
-function getDataUrl(img: HTMLImageElement) {
-   // Create canvas
-   const canvas = document.createElement('canvas');
-   const ctx = canvas.getContext('2d')!;
-   // Set width and height
-   canvas.width = img.width;
-   canvas.height = img.height;
-   // Draw the image
-   ctx.drawImage(img, 0, 0);
-   return canvas.toDataURL('image/jpeg');
-}
 </script>
 
 <style>
