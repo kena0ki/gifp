@@ -123,13 +123,17 @@ function onDropGifArea(ev: DragEvent) {
     function cache() {
       if (i >= frames.value.length) return;
       u.drawPatch(frames.value[i], cacheCanvas, cacheTempCanvas);
-      cacheCanvas.toBlob(blob => {
-        const image = new Image;
-        image.src = URL.createObjectURL(blob);
-        images.value.push(image);
-      });
-      cacheImages.value.push(cacheCanvas.cloneNode() as HTMLCanvasElement);
-      requestAnimationFrame(cache);
+      cacheCanvas.toBlob(makeCallback());
+      function makeCallback(): BlobCallback {
+        const cnt = i; // capture
+        return blob => {
+          const image = new Image;
+          image.src = URL.createObjectURL(blob);
+          console.log(cnt);
+          images.value[cnt] = image;
+        };
+      };
+      requestIdleCallback(cache);
       i++;
     }
   }).catch(e => {
