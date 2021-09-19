@@ -73,8 +73,10 @@ function onChangeProgressBar(evt: Event) {
 
 const url = ref<HTMLInputElement>();
 function onClickLoad() {
-  fetch('').then(res => res.arrayBuffer)
-  fetch(location.origin + '/gif/' + url.value!.value)
+  const headers = { 'x-target': url.value!.value };
+  console.log(headers);
+  const proxyUrl = location.protocol + '//'+location.hostname + ':5001'
+  fetch(proxyUrl, { headers, mode: 'cors' })
     .then(resp => resp.arrayBuffer())
     .then(buf => {
       const [frms, imgs] = u.loadGif(buf, cvs.value!, tempCanvas);

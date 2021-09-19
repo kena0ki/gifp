@@ -7,8 +7,9 @@
     "// build": "esr -P ./script/tsconfig.json ./script/build.ts",
     "build": "esr ./script/build.ts",
     "watch": "chokidar \"src/**/*\" -c \"npm run build\" --initial --debounce 5000",
-    "serve": "serve",
-    "start": "concurrently -p '{time} {name}' -t 'HH:mm:ss.SSS' -c green,yellow  npm:watch npm:serve"
+    "serve": "serve --cors",
+    "proxy": "esr ./script/proxy.ts",
+    "start": "concurrently -p '{time} {name}' -t 'HH:mm:ss.SSS' -c green,yellow,blue  npm:watch npm:serve npm:proxy"
   },
   "author": "kena0ki",
   "repository": {
@@ -17,6 +18,7 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@types/http-proxy": "^1.17.7",
     "@types/node": "^16.9.1",
     "@types/yargs": "^17.0.2",
     "@typescript-eslint/eslint-plugin": "^4.31.0",
@@ -27,6 +29,7 @@
     "esbuild-plugin-vue-iii": "^0.5.0",
     "esbuild-runner": "^2.2.1",
     "eslint": "^7.32.0",
+    "http-proxy": "^1.18.1",
     "serve": "^12.0.1",
     "typescript": "^4.4.2",
     "yargs": "^17.1.1"

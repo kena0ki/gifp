@@ -1,4 +1,4 @@
-import { parseGIF, decompressFrames, ParsedFrame } from 'gifuct-js'
+import { parseGIF, decompressFrames, ParsedFrame } from 'gifuct-js';
 
 function drawPatch(frm: ParsedFrame, cvs: HTMLCanvasElement, workCvs: HTMLCanvasElement) {
   const ctx = cvs.getContext('2d')!;
