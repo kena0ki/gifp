@@ -25,7 +25,6 @@ import u from '../util';
 const cvs = ref<HTMLCanvasElement>();
 const ctx = ref<CanvasRenderingContext2D>();
 const tempCanvas = document.createElement('canvas');
-const tempCtx = tempCanvas.getContext('2d')!;
 const frames = ref<ParsedFrame[]>([]);
 const frameIdx = ref(0);
 const maxFrameIdx = ref(100);
