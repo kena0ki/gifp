@@ -2,6 +2,10 @@
   <div class="spacer-1rem"></div>
   <div>
     <input ref="url" value="https://raw.githubusercontent.com/k0kubun/sqldef/master/demo.gif" />
+    <!--
+      https://upload.wikimedia.org/wikipedia/commons/2/2c/Rotating_earth_%28large%29.gif
+      https://onlineimagetools.com/images/examples-onlineimagetools/owl-flying-animated.gif
+    -->
     <button ref="load" @click="onClickLoad">Load</button>
   </div>
   <div>
@@ -11,7 +15,6 @@
   </div>
   <div class="spacer-1rem"></div>
   <div id="gif-area" @drop="onDropGifArea" @dragover="onDragoverGifArea">
-    <img ref="gif" crossorigin alt="gif">
     <canvas ref="cvs"></canvas>
   </div>
   <div class="spacer-1rem"></div>
