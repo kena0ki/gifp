@@ -9,11 +9,9 @@ function drawPatch(frm: ParsedFrame, cvs: HTMLCanvasElement, workCvs: HTMLCanvas
     tmpCtx.clearRect(0,0,cvs.width, cvs.height);
   }
 
-  console.time();
   workCvs.width = dims.width;
   workCvs.height = dims.height;
   const frameImageData = tmpCtx.createImageData(dims.width, dims.height);
-  console.timeEnd();
 
   frameImageData.data.set(frm.patch)
 
