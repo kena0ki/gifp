@@ -18,7 +18,7 @@ const server = http.createServer((req,res) => {
   proxyReq.on('error', error => {
     console.error(error);
   });
-  proxyReq.end();
+  proxyReq.end(); // terminate our request message. otherwise, servers would keep waiting for it.
 });
 server.on('listening', () =>{
   console.log('listening on port', PORT);
