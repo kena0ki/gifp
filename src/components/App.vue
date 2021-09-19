@@ -13,7 +13,6 @@
   <div id="gif-area" @drop="onDropGifArea" @dragover="onDragoverGifArea">
     <img ref="gif" crossorigin alt="gif">
     <canvas ref="cvs"></canvas>
-    <canvas ref="cvs2"></canvas>
   </div>
   <div class="spacer-1rem"></div>
 </template>
@@ -115,7 +114,7 @@ function onDropGifArea(ev: DragEvent) {
     let i=0;
     cacheImages.value = [];
     images.value =[];
-    const cacheCanvas = cvs2.value!;
+    const cacheCanvas = document.createElement('canvas');
     const cacheTempCanvas = document.createElement('canvas');
     cacheCanvas.width = frames.value[0].dims.width;
     cacheCanvas.height = frames.value[0].dims.height;
