@@ -1,13 +1,13 @@
 <template>
   <div class="spacer-1rem"></div>
   <div>
-    <input id="gif-url" value="https://raw.githubusercontent.com/k0kubun/sqldef/master/demo.gif" />
-    <button id="load" @click="onClickLoad">Load</button>
+    <input ref="url" value="https://raw.githubusercontent.com/k0kubun/sqldef/master/demo.gif" />
+    <button ref="load" @click="onClickLoad">Load</button>
   </div>
   <div>
-    <input id="progress-bar" type="range" @change="onChangeProgressBar" :value="frameIdx" :max="maxFrameIdx" />
-    <button id="play" v-if="!isPlaying" @click="onClickPlay" :disabled="frames.length<1">Play</button>
-    <button id="stop" v-else @click="onClickStop">Stop</button>
+    <input ref="progress-bar" type="range" @change="onChangeProgressBar" :value="frameIdx" :max="barMax" />
+    <button ref="play" v-if="!isPlaying" @click="onClickPlay" :disabled="frames.length<1">Play</button>
+    <button ref="stop" v-else @click="onClickStop">Stop</button>
   </div>
   <div class="spacer-1rem"></div>
   <div id="gif-area" @drop="onDropGifArea" @dragover="onDragoverGifArea">
@@ -18,19 +18,19 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { parseGIF, decompressFrames, ParsedFrame } from 'gifuct-js'
 import u from '../util';
 
+const DEFAULT_BAR_MAX = 100;
 const cvs = ref<HTMLCanvasElement>();
 const ctx = ref<CanvasRenderingContext2D>();
 const tempCanvas = document.createElement('canvas');
 const frames = ref<ParsedFrame[]>([]);
 const frameIdx = ref(0);
-const maxFrameIdx = ref(100);
 const isPlaying = ref(false);
-const cacheImages = ref<HTMLCanvasElement[]>([]);
 const images = ref<HTMLImageElement[]>([]);
+const barMax = computed(() => frames.value.length<1?DEFAULT_BAR_MAX:frames.value.length-1)
 
 onMounted(() =>{
   ctx.value = cvs.value!.getContext('2d')!;
@@ -71,10 +71,18 @@ function onChangeProgressBar(evt: Event) {
   });
 }
 
+const url = ref<HTMLInputElement>();
 function onClickLoad() {
-  const img = ref<HTMLImageElement>();
-  const url = document.getElementById('gif-url') as HTMLInputElement;
-  img.value!.src = url.value;
+  fetch('').then(res => res.arrayBuffer)
+  fetch(location.origin + '/gif/' + url.value!.value)
+    .then(resp => resp.arrayBuffer())
+    .then(buf => {
+      const [frms, imgs] = u.loadGif(buf, cvs.value!, tempCanvas);
+      frames.value = frms;
+      images.value = imgs;
+    }).catch(e => {
+      console.error('Faild to get gif data:' + e)
+    });
 };
 
 const cvs2 = ref<HTMLCanvasElement>();
@@ -100,40 +108,9 @@ function onDropGifArea(ev: DragEvent) {
   }
 
   file.arrayBuffer().then(buf => {
-    const gif = parseGIF(buf);
-    frames.value = decompressFrames(gif, true);
-    if (frames.value.length === 0) {
-      throw new Error('This file doesn\'t seem to be a gif.');
-    }
-    maxFrameIdx.value=frames.value.length-1;
-    cvs.value!.width = frames.value[0].dims.width;
-    cvs.value!.height = frames.value[0].dims.height;
-    u.drawPatch(frames.value[0], cvs.value!, tempCanvas);
-
-    let i=0;
-    cacheImages.value = [];
-    images.value =[];
-    const cacheCanvas = document.createElement('canvas');
-    const cacheTempCanvas = document.createElement('canvas');
-    cacheCanvas.width = frames.value[0].dims.width;
-    cacheCanvas.height = frames.value[0].dims.height;
-    cache();
-    function cache() {
-      if (i >= frames.value.length) return;
-      u.drawPatch(frames.value[i], cacheCanvas, cacheTempCanvas);
-      cacheCanvas.toBlob(makeCallback());
-      function makeCallback(): BlobCallback {
-        const cnt = i; // capture
-        return blob => {
-          const image = new Image;
-          image.src = URL.createObjectURL(blob);
-          console.log(cnt);
-          images.value[cnt] = image;
-        };
-      };
-      requestIdleCallback(cache);
-      i++;
-    }
+    const [frms, imgs] = u.loadGif(buf, cvs.value!, tempCanvas);
+    frames.value = frms;
+    images.value = imgs;
   }).catch(e => {
     console.error(e);
   });

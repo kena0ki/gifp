@@ -7,7 +7,7 @@ import Frame from './components/Frame.vue';
 window.requestIdleCallback = window.requestIdleCallback ||
   function (cb) {
     return setTimeout(function () {
-      var start = Date.now();
+      const start = Date.now();
       cb({ 
         didTimeout: false,
         timeRemaining: function () {
@@ -15,6 +15,6 @@ window.requestIdleCallback = window.requestIdleCallback ||
         }
       });
     }, 1);
-  }
+  };
 
 createApp(Frame).mount('#app');
