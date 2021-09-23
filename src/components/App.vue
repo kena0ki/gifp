@@ -17,7 +17,7 @@
   <div class="gif-area" @drop="onDropGifArea" @dragover="onDragoverGifArea">
     <div class="gif-placeholder" v-if="!loadDone && !loading">Load a gif file from a URL.</div>
     <img v-if="loading" src="../assets/waiting-icon-gif-20.jpg" />
-    <canvas v-show="loadDone" ref="cvs"></canvas>
+    <canvas v-show="loadDone && !loading" ref="cvs"></canvas>
   </div>
 </template>
 
