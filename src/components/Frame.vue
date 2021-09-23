@@ -50,6 +50,8 @@ export default defineComponent({
   width: 100%;
   flex-grow: 1;
   text-align: center;
+  max-width: 600px;
+  align-items: center;
 }
 
 .footer-container {
@@ -62,12 +64,13 @@ export default defineComponent({
 }
 .footer {
   margin-right: 1rem;
+  display: block;
 }
 
 .gh-ribbon {
   display: block;
-  width: 80px;
-  height: 80px;
+  width: 90px;
+  height: 90px;
   position: fixed;
   top: 0;
   right: 0;

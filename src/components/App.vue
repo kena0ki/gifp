@@ -1,29 +1,33 @@
 <template>
-  <div class="spacer-1rem"></div>
-  <div>
-    <input ref="url" value="https://raw.githubusercontent.com/k0kubun/sqldef/master/demo.gif" />
-    <!--
-      https://upload.wikimedia.org/wikipedia/commons/2/2c/Rotating_earth_%28large%29.gif
-      https://onlineimagetools.com/images/examples-onlineimagetools/owl-flying-animated.gif
-    -->
-    <button ref="load" @click="onClickLoad">Load</button>
+  <div class="spacer-2rem"></div>
+  <div class="input-url">
+    <InputText :value="url" @change="onChangeUrl"/>
   </div>
-  <div>
-    <input ref="progress-bar" type="range" @change="onChangeProgressBar" :value="frameIdx" :max="barMax" />
-    <button ref="play" v-if="!isPlaying" @click="onClickPlay" :disabled="frames.length<1">Play</button>
-    <button ref="stop" v-else @click="onClickStop">Stop</button>
+  <div class="load-button">
+    <button ref="load" class="square_btn" @click="onClickLoad">Load</button>
+  </div>
+  <div class="slider-area">
+    <div>
+      <input type="range" @change="onChangeProgressBar" :value="frameIdx" :max="barMax" :disabled="!loadDone"/>
+    </div>
+    <div>
+      <button ref="play" class="square_btn small" v-if="!isPlaying" @click="onClickPlay" :disabled="!loadDone">play</button>
+      <button ref="stop" class="square_btn small" v-else @click="onClickStop">stop</button>
+    </div>
   </div>
   <div class="spacer-1rem"></div>
-  <div id="gif-area" @drop="onDropGifArea" @dragover="onDragoverGifArea">
-    <canvas ref="cvs"></canvas>
+  <div class="gif-area" @drop="onDropGifArea" @dragover="onDragoverGifArea">
+    <div class="gif-placeholder" v-if="!loadDone">Load a gif file from a URL.</div>
+    <canvas v-show="loadDone" ref="cvs"></canvas>
   </div>
   <div class="spacer-1rem"></div>
 </template>
 
 <script lang="ts" setup>
 import { ref, onMounted, computed } from 'vue';
-import { parseGIF, decompressFrames, ParsedFrame } from 'gifuct-js'
+import { ParsedFrame } from 'gifuct-js'
 import u from '../util';
+import InputText from './InputText.vue';
 
 const DEFAULT_BAR_MAX = 100;
 const cvs = ref<HTMLCanvasElement>();
@@ -34,6 +38,11 @@ const frameIdx = ref(0);
 const isPlaying = ref(false);
 const images = ref<HTMLImageElement[]>([]);
 const barMax = computed(() => frames.value.length<1?DEFAULT_BAR_MAX:frames.value.length-1)
+const loadDone = computed(() => frames.value.length>0);
+const url = ref<string>('https://upload.wikimedia.org/wikipedia/commons/2/2c/Rotating_earth_%28large%29.gif');
+// https://upload.wikimedia.org/wikipedia/commons/2/2c/Rotating_earth_%28large%29.gif
+// https://raw.githubusercontent.com/k0kubun/sqldef/master/demo.gif
+// https://onlineimagetools.com/images/examples-onlineimagetools/owl-flying-animated.gif
 
 onMounted(() =>{
   ctx.value = cvs.value!.getContext('2d')!;
@@ -74,9 +83,8 @@ function onChangeProgressBar(evt: Event) {
   });
 }
 
-const url = ref<HTMLInputElement>();
 function onClickLoad() {
-  const headers = { 'x-target': url.value!.value };
+  const headers = { 'x-target': url.value };
   console.log(headers);
   const proxyUrl = location.protocol + '//'+location.hostname + ':5001'
   fetch(proxyUrl, { headers, mode: 'cors' })
@@ -93,7 +101,6 @@ function onClickLoad() {
 const cvs2 = ref<HTMLCanvasElement>();
 // const gifCanvas = document.createElement('canvas');
 // const gifCtx = gifCanvas.getContext('2d')!;
-let frameImageData: ImageData;
 function onDropGifArea(ev: DragEvent) {
   console.log('File(s) dropped');
   ev.preventDefault();
@@ -125,103 +132,73 @@ function onDragoverGifArea(ev: DragEvent) {
   console.log('File(s) in drop zone');
   // Prevent default behavior (Prevent file from being opened)
   ev.preventDefault();
-};
+}
+
+function onChangeUrl(evt: Event) { 
+  if (evt.target instanceof HTMLInputElement) {
+    const input = evt.target;
+    url.value = input.value;
+  }
+}
 </script>
 
 <style>
-#gif-area {
-  min-width: 300px;
-  min-height: 300px;
-  background-color: #FFD2D2;
+.square_btn {
+    display: inline-block;
+    padding: 0.3em 1em;
+    text-decoration: none;
+    color: #606060;
+    border: solid 1px #606060;
+    border-radius: 3px;
+    background: #fff;
 }
+.square_btn[disabled] {
+  opacity: .6;
+}
+.square_btn:hover {
+  cursor: pointer;
+}
+.square_btn:hover:disabled {
+  cursor: revert;
+}
+.square_btn:active {
+    color: #fff;
+    background-color: #606060;
+}
+.small {
+  font-size: .7rem;
+}
+
+.gif-area {
+  max-width: 96vw;
+}
+
+.gif-placeholder {
+  width: 300px;
+  height: 300px;
+  background-color: #fff1f1;
+  justify-content: center;
+}
+
 .spacer-1rem {
   height: 1rem;
 }
 .spacer-2rem {
   height: 2rem;
 }
-.input-area {
-  text-align: center;
+.input-url {
+  flex-direction: row;
+  align-self: stretch;
+  margin-bottom: .5rem;
+  justify-content: center;
 }
-.output-area {
-  text-align: center;
+.load-button {
+  margin: .5rem 0 1rem;
 }
-.input-area-create-statement-container {
-  width: 100%;
-  height: 40vh;
+.slider-area {
+  flex-direction: row;
+  align-items: center;
 }
-.input-area-create-statement {
-  width: 90%;
-  height: 100%;
-  margin: auto;
-  text-align: left;
-}
-.input-area-button,
-.output-area-button {
-  margin: .3em;
-  border-radius: 5px;
-}
-.options-header {
-  text-align: center;
-}
-.options-form {
-  padding: .5em;
-}
-.general-options-header {
-  margin-top: 0;
-}
-.indent-05 {
-  padding-left: .5em;
-}
-.options.select {
-  font-size: revert;
-  height: revert;
-  margin: .5em;
-}
-.options.input {
-  font-size: revert;
-  margin: .5em;
-}
-.generated-data-container {
-  width: 100%;
-  height: 40vh;
-  text-align: left;
-}
-.generated-data {
-  height: 100%;
-  width: 94%;
-  margin: auto;
-  overflow-x: auto;
-  white-space: pre;
-  box-shadow: inset 0px 0px 1px 1px #eee;
-}
-.column-options-add,
-.column-options-del {
-  margin-left: 1em;
-  font-size: 60%;
-}
-.accordion-button {
-  background-color: #fff;
-  cursor: pointer;
-  padding: 0;
-  border: none;
-  outline: none;
-  transition: 0.4s;
-}
-.accordion-panel {
-  max-height: 0px;
-  display: none;
-  transition: max-height 0.2s ease-out;
-}
-.accordion-container.active>.accordion-panel {
-  max-height: none;
-  display: block;
-}
-.options-callback-function {
-  width: 100%;
-  height: 80vh;
-}
-
 .isa_info, .isa_success, .isa_warning, .isa_error {
     margin: 0.5em 0px;
     padding: 0.6em;

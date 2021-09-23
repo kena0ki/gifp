@@ -1,5 +1,3 @@
-@import "purecss/build/pure-min.css";
-
 html {
   height: 100%;
   width: 100%;
@@ -23,11 +21,14 @@ body {
   align-items: center;
   justify-content: space-between;
 }
-html, button, input, select, textarea,
-.pure-g [class *= "pure-u"] {
-  /* Set your content font stack here: */
+html, button, input, select, textarea {
   /*
   font-family: Georgia, Times, "Times New Roman", serif;
   */
   font-family: Avenir, Helvetica, Arial, sans-serif;
+}
+
+div {
+  display: flex;
+  flex-direction: column;
 }
