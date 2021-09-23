@@ -1,10 +1,12 @@
+// this file exists just for linter
 {
   "extends": "../tsconfig-base.json",
   "compilerOptions": {
-    "outDir": "../dist",
-    "strict": true,
+    "lib": ["esnext"],
+    "module": "commonJS",
     "isolatedModules": true, // needed for esbuild
     "esModuleInterop": true, // needed for esbuild
+    "strict": true,
     // "diagnostics": true,
   },
   "include": [

@@ -17,7 +17,8 @@
   </div>
   <div class="spacer-1rem"></div>
   <div class="gif-area" @drop="onDropGifArea" @dragover="onDragoverGifArea">
-    <div class="gif-placeholder" v-if="!loadDone">Load a gif file from a URL.</div>
+    <div class="gif-placeholder" v-if="!loadDone && !loading">Load a gif file from a URL.</div>
+    <img v-if="loading" src="../assets/waiting-icon-gif-20.jpg" />
     <canvas v-show="loadDone" ref="cvs"></canvas>
   </div>
   <div class="spacer-1rem"></div>
@@ -43,6 +44,7 @@ const url = ref<string>('https://upload.wikimedia.org/wikipedia/commons/2/2c/Rot
 // https://upload.wikimedia.org/wikipedia/commons/2/2c/Rotating_earth_%28large%29.gif
 // https://raw.githubusercontent.com/k0kubun/sqldef/master/demo.gif
 // https://onlineimagetools.com/images/examples-onlineimagetools/owl-flying-animated.gif
+const loading = ref(false);
 
 onMounted(() =>{
   ctx.value = cvs.value!.getContext('2d')!;
@@ -84,6 +86,7 @@ function onChangeProgressBar(evt: Event) {
 }
 
 function onClickLoad() {
+  loading.value = true;
   const headers = { 'x-target': url.value };
   console.log(headers);
   const proxyUrl = location.protocol + '//'+location.hostname + ':5001'
@@ -93,8 +96,10 @@ function onClickLoad() {
       const [frms, imgs] = u.loadGif(buf, cvs.value!, tempCanvas);
       frames.value = frms;
       images.value = imgs;
+      loading.value = false;
     }).catch(e => {
       console.error('Faild to get gif data:' + e)
+      loading.value = false;
     });
 };
 

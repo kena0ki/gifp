@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import Frame from './components/Frame.vue';
+import './main.css';
 
 /*
  * @see https://developers.google.com/web/updates/2015/08/using-requestidlecallback
