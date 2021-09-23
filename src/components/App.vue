@@ -1,5 +1,4 @@
 <template>
-  <div class="spacer-2rem"></div>
   <div class="input-url">
     <InputText :value="url" @change="onChangeUrl"/>
   </div>
@@ -15,13 +14,11 @@
       <button ref="stop" class="square_btn small" v-else @click="onClickStop">stop</button>
     </div>
   </div>
-  <div class="spacer-1rem"></div>
   <div class="gif-area" @drop="onDropGifArea" @dragover="onDragoverGifArea">
     <div class="gif-placeholder" v-if="!loadDone && !loading">Load a gif file from a URL.</div>
     <img v-if="loading" src="../assets/waiting-icon-gif-20.jpg" />
     <canvas v-show="loadDone" ref="cvs"></canvas>
   </div>
-  <div class="spacer-1rem"></div>
 </template>
 
 <script lang="ts" setup>
@@ -185,15 +182,10 @@ function onChangeUrl(evt: Event) {
   justify-content: center;
 }
 
-.spacer-1rem {
-  height: 1rem;
-}
-.spacer-2rem {
-  height: 2rem;
-}
 .input-url {
   flex-direction: row;
   align-self: stretch;
+  margin-top: 2rem;
   margin-bottom: .5rem;
   justify-content: center;
 }
@@ -203,6 +195,7 @@ function onChangeUrl(evt: Event) {
 .slider-area {
   flex-direction: row;
   align-items: center;
+  margin-bottom: .5rem;
 }
 .isa_info, .isa_success, .isa_warning, .isa_error {
     margin: 0.5em 0px;

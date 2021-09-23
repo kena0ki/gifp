@@ -28,7 +28,7 @@ const props = defineProps({
   -webkit-appearance: none;
   -moz-appearance: none;
        appearance: none;
-  width: 100%;
+  width: calc(100% - 1.4rem);
   height: 2rem;
   border: 0;
   padding: .2rem .7rem;
