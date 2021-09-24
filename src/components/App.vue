@@ -5,6 +5,12 @@
   <div class="load-button">
     <button ref="load" class="square_btn" @click="onClickLoad">Load</button>
   </div>
+  <div class="message" v-if="msgObj" :message-type="msgObj.type">
+    {{ msgObj.message }}
+    <div v-if="msgObj.id === 'E001'">
+      Are you sure this <a :href="url" target="_brank">URL</a> is truly a GIF.
+    </div>
+  </div> 
   <div class="slider-area">
     <div>
       <input type="range" @change="onChangeProgressBar" :value="frameIdx" :max="barMax" :disabled="!loadDone"/>
@@ -15,7 +21,7 @@
     </div>
   </div>
   <div class="gif-area" @drop="onDropGifArea" @dragover="onDragoverGifArea">
-    <div class="gif-placeholder" v-if="!loadDone && !loading">Load a gif file from a URL.</div>
+    <div class="gif-placeholder" v-if="!loadDone && !loading">Load a GIF file from a URL.</div>
     <img v-if="loading" src="../assets/waiting-icon-gif-20.jpg" />
     <canvas v-show="loadDone && !loading" ref="cvs"></canvas>
   </div>
@@ -26,7 +32,15 @@ import { ref, onMounted, computed } from 'vue';
 import { ParsedFrame } from 'gifuct-js'
 import u from '../util';
 import InputText from './InputText.vue';
+import { string } from 'yargs';
 
+const MESSAGES = {
+  E001: { id: 'E001', type: 'error', message: 'Faild to load a GIF file.'},
+  E002: { id: 'E002', type: 'error', message: 'This is not a file.'},
+  E003: { id: 'E003', type: 'error', message: 'No file was found.'},
+  W001: { id: 'W001', type: 'warning', message: 'More than one file was selected.'},
+};
+const msgObj = ref<{ id: string, type: string, message: string}|undefined>();
 const DEFAULT_BAR_MAX = 100;
 const cvs = ref<HTMLCanvasElement>();
 const ctx = ref<CanvasRenderingContext2D>();
@@ -83,6 +97,7 @@ function onChangeProgressBar(evt: Event) {
 }
 
 function onClickLoad() {
+  msgObj.value = undefined;
   loading.value = true;
   const headers = { 'x-target': url.value };
   console.log(headers);
@@ -95,7 +110,8 @@ function onClickLoad() {
       images.value = imgs;
       loading.value = false;
     }).catch(e => {
-      console.error('Faild to get gif data:' + e)
+      console.error(MESSAGES.E001, url.value, e)
+      msgObj.value = MESSAGES.E001;
       loading.value = false;
     });
 };
@@ -104,20 +120,24 @@ const cvs2 = ref<HTMLCanvasElement>();
 // const gifCanvas = document.createElement('canvas');
 // const gifCtx = gifCanvas.getContext('2d')!;
 function onDropGifArea(ev: DragEvent) {
+  msgObj.value = undefined;
   console.log('File(s) dropped');
   ev.preventDefault();
   const num = ev.dataTransfer?.items?.length;
   if (num && num > 1) {
-    console.warn('More than one file was selected.')
+    console.warn(MESSAGES.W001.message);
+    msgObj.value = MESSAGES.W001;
   }
   const item = ev.dataTransfer?.items[0];
   if (item?.kind !== 'file') {
-    console.error('This is not a file');
+    console.error(MESSAGES.E002.message);
+    msgObj.value = MESSAGES.E002;
     return;
   }
   const file = ev.dataTransfer?.items[0].getAsFile();
   if (!file) {
-    console.error('No file was selected');
+    console.error(MESSAGES.E003.message);
+    msgObj.value = MESSAGES.E003;
     return;
   }
 
@@ -126,7 +146,8 @@ function onDropGifArea(ev: DragEvent) {
     frames.value = frms;
     images.value = imgs;
   }).catch(e => {
-    console.error(e);
+    console.error(MESSAGES.E001, e);
+    msgObj.value = { ...MESSAGES.E001, id: '' };
   });
 };
 
@@ -190,35 +211,37 @@ function onChangeUrl(evt: Event) {
   justify-content: center;
 }
 .load-button {
-  margin: .5rem 0 1rem;
+  margin: .5rem 0;
 }
 .slider-area {
   flex-direction: row;
   align-items: center;
+  margin-top: 1rem;
   margin-bottom: .5rem;
 }
-.isa_info, .isa_success, .isa_warning, .isa_error {
+.message {
     margin: 0.5em 0px;
     padding: 0.6em;
     border-radius: .3em;
     white-space: pre-wrap;
+    width: 80%;
 }
-.isa_info {
+.message[message-type=info] {
     color: #00529B;
     background-color: #BDE5F8;
     box-shadow: 0 0 3px #00529B;
 }
-.isa_success {
+.message[message-type=success] {
     color: #4F8A10;
     background-color: #DFF2BF;
     box-shadow: 0 0 3px #00529B;
 }
-.isa_warning {
+.message[message-type=warning] {
     color: #9F6000;
     background-color: #FEEFB3;
     box-shadow: 0 0 3px #9F6000;
 }
-.isa_error {
+.message[message-type=error] {
     color: #D8000C;
     background-color: #FFD2D2;
     box-shadow: 0 0 3px #D8000C;
