@@ -99,10 +99,9 @@ function onChangeProgressBar(evt: Event) {
 function onClickLoad() {
   msgObj.value = undefined;
   loading.value = true;
-  const headers = { 'x-target': url.value };
-  console.log(headers);
-  const proxyUrl = location.protocol + '//'+location.hostname + ':5001'
-  fetch(proxyUrl, { headers, mode: 'cors' })
+  const proxyHost = location.protocol + '//' + location.hostname + ':5001/'
+  const targetUrl = proxyHost + url.value.replace(/https?:\/\//,'');
+  fetch(targetUrl)
     .then(resp => resp.arrayBuffer())
     .then(buf => {
       const [frms, imgs] = u.loadGif(buf, cvs.value!, tempCanvas);

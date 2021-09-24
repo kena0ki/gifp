@@ -4,21 +4,22 @@ import https from 'https';
 const PORT = 5001;
 const server = http.createServer((req,res) => {
   res.setHeader('access-control-allow-origin', '*');
-  if ('access-control-request-headers' in req.headers) {
-    res.setHeader('access-control-allow-headers', '*');
+  if (!req.url) return res.end();
+  const target = 'https:/'+req.url;
+  try {
+    const proxyReq = https.request(target, proxyRes => {
+      console.log(`statusCode: ${proxyRes.statusCode}`);
+      proxyRes.pipe(res);
+    });
+    proxyReq!.on('error', error => {
+      console.error(error);
+    });
+    proxyReq.end(); // terminate our message request. otherwise, servers would keep waiting for our messages.
+  } catch(e) { 
+    console.error(e);
+    res.statusCode=500;
     res.end();
-    console.error('preflight');
-    return;
   }
-  const target = req.headers['x-target'] as string;
-  const proxyReq = https.request(target, proxyRes => {
-    console.log(`statusCode: ${proxyRes.statusCode}`);
-    proxyRes.pipe(res);
-  });
-  proxyReq.on('error', error => {
-    console.error(error);
-  });
-  proxyReq.end(); // terminate our message request. otherwise, servers would keep waiting for our messages.
 });
 server.on('listening', () =>{
   console.log('listening on port', PORT);
