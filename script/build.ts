@@ -14,9 +14,7 @@ const argv = yargs(hideBin(process.argv)).parseSync();
   try {
     await fs.access(dest);
     await fs.rmdir(dest, { recursive:true });
-  } catch {
-    // noop
-  }
+  } catch { /* noop */ }
   await fs.mkdir(dest);
   const files = await fs.readdir(src);
   for (const file of files) {
@@ -27,6 +25,7 @@ const argv = yargs(hideBin(process.argv)).parseSync();
   await build({
     entryPoints: [argv.entryPoints as string || 'src/main.ts'],
     bundle: true,
+    minify: !process.env.DEBUG,
     sourcemap: true,
     target: ['es2019'],
     outdir: argv.outdir as string || 'public',
