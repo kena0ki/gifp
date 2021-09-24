@@ -48,7 +48,7 @@ function loadGif(buf: ArrayBuffer, cvs: HTMLCanvasElement, workCanvas: HTMLCanva
       return blob => {
         const image = new Image;
         image.src = URL.createObjectURL(blob);
-        console.log(cnt);
+        log(cnt);
         images[cnt] = image;
       };
     }
@@ -70,8 +70,11 @@ function getDataUrl(img: HTMLImageElement) {
    return canvas.toDataURL('image/jpeg');
 }
 
+const log: typeof console.log = DEBUG ? console.log : () => {};
+
 export default {
   drawPatch,
   getDataUrl,
   loadGif,
+  log,
 };

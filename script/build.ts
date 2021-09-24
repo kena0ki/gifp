@@ -29,6 +29,7 @@ const argv = yargs(hideBin(process.argv)).parseSync();
     loader: { '.svg': 'file', '.jpg': 'file' },
     // publicPath: 'static',
     plugins: [ vue3Plugin() ],
+    define: { DEBUG: process.env.DEBUG ? 'true' : 'false' },
   }).catch(() => process.exit(1));
 })();
 

@@ -3,7 +3,7 @@
     <InputText :value="url" @change="onChangeUrl"/>
   </div>
   <div class="load-button">
-    <button ref="load" class="square_btn" @click="onClickLoad">Load</button>
+    <button ref="load" class="square_btn" @click="onClickLoad" :disabled="!url">Load</button>
   </div>
   <div class="message" v-if="msgObj" :message-type="msgObj.type">
     {{ msgObj.message }}
@@ -74,7 +74,7 @@ function onClickPlay() {
     u.drawPatch(frame, cvs.value!, tempCanvas);
     const end = new Date().getTime();
     const delay = frame.delay - (end-start);
-    console.log(delay);
+    u.log(delay);
     setTimeout(() => {
       requestAnimationFrame(loop);
     }, delay);
@@ -91,7 +91,7 @@ function onChangeProgressBar(evt: Event) {
   const idx = +input.value;
   frameIdx.value = idx;
   setTimeout(() => {
-    console.log(images.value);
+    u.log(images.value);
     ctx.value!.drawImage(images.value[idx],0,0);
   });
 }
@@ -120,7 +120,7 @@ const cvs2 = ref<HTMLCanvasElement>();
 // const gifCtx = gifCanvas.getContext('2d')!;
 function onDropGifArea(ev: DragEvent) {
   msgObj.value = undefined;
-  console.log('File(s) dropped');
+  u.log('File(s) dropped');
   ev.preventDefault();
   const num = ev.dataTransfer?.items?.length;
   if (num && num > 1) {
@@ -151,7 +151,7 @@ function onDropGifArea(ev: DragEvent) {
 };
 
 function onDragoverGifArea(ev: DragEvent) {
-  console.log('File(s) in drop zone');
+  u.log('File(s) in drop zone');
   // Prevent default behavior (Prevent file from being opened)
   ev.preventDefault();
 }
