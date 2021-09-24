@@ -192,6 +192,7 @@ function onChangeUrl(evt: Event) {
 
 .gif-area {
   max-width: 96vw;
+  margin-bottom: 1rem;
 }
 
 .gif-placeholder {
