@@ -10,7 +10,7 @@
     <App />
   </div>
   <div class="footer-container">
-    <div class="footer">Created by 
+    <div class="footer">Made by 
       <a href="https://github.com/kena0ki" target="_brank">
         kena0ki
       </a>
@@ -63,7 +63,7 @@ export default defineComponent({
   justify-content: end;
 }
 .footer {
-  margin-right: 1rem;
+  margin: 0 1rem;
   display: block;
 }
 
