@@ -91,13 +91,6 @@ function onChangeProgressBar(evt: Event) {
   const idx = +input.value;
   frameIdx.value = idx;
   setTimeout(() => {
-    // const c = document.createElement('canvas');
-    // const x = c.getContext('2d')!;
-    // const frameImageData = x.createImageData(cvs.value!.width, cvs.value!.height);
-    // frameImageData.data.set(frames.value[idx].patch);
-    // x.putImageData(frameImageData, 0, 0);
-    // ctx.value!.clearRect(0,0,cvs.value!.width, cvs.value!.height)
-    // ctx.value!.drawImage(c,0,0);
     u.log(images.value);
     ctx.value!.drawImage(images.value[idx],0,0);
   });
