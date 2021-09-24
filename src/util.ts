@@ -6,7 +6,7 @@ function drawPatch(frm: ParsedFrame, cvs: HTMLCanvasElement, workCvs: HTMLCanvas
   const dims = frm.dims;
 
   if (frm.disposalType === 2) {
-    tmpCtx.clearRect(0,0,cvs.width, cvs.height);
+    ctx.clearRect(0,0,cvs.width, cvs.height);
   }
 
   workCvs.width = dims.width;
