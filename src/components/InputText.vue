@@ -14,7 +14,6 @@ const props = defineProps({
 </script>
 <style>
 .inp {
-  width: 90%;
   border-radius: 3px;
 }
 .label-container {

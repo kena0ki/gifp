@@ -50,7 +50,6 @@ export default defineComponent({
   width: 100%;
   flex-grow: 1;
   text-align: center;
-  max-width: 600px;
   align-items: center;
 }
 

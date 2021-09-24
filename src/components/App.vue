@@ -1,6 +1,6 @@
 <template>
-  <div class="input-url">
-    <InputText :value="url" @change="onChangeUrl"/>
+  <div class="input-url-container">
+    <InputText class="input-url" :value="url" @change="onChangeUrl"/>
   </div>
   <div class="load-button">
     <button ref="load" class="square_btn" @click="onClickLoad" :disabled="!url">Load</button>
@@ -32,7 +32,7 @@ import { ref, onMounted, computed } from 'vue';
 import { ParsedFrame } from 'gifuct-js'
 import u from '../util';
 import InputText from './InputText.vue';
-import { string } from 'yargs';
+import c from '../config';
 
 const MESSAGES = {
   E001: { id: 'E001', type: 'error', message: 'Faild to load a GIF file.'},
@@ -99,8 +99,7 @@ function onChangeProgressBar(evt: Event) {
 function onClickLoad() {
   msgObj.value = undefined;
   loading.value = true;
-  const proxyHost = location.protocol + '//' + location.hostname + ':5001/'
-  const targetUrl = proxyHost + url.value.replace(/https?:\/\//,'');
+  const targetUrl = c.PROXY_HOST + '/' + url.value.replace(/https?:\/\//,'');
   fetch(targetUrl)
     .then(resp => resp.arrayBuffer())
     .then(buf => {
@@ -202,12 +201,16 @@ function onChangeUrl(evt: Event) {
   justify-content: center;
 }
 
-.input-url {
+.input-url-container {
   flex-direction: row;
   align-self: stretch;
   margin-top: 2rem;
   margin-bottom: .5rem;
   justify-content: center;
+}
+.input-url {
+  width: 600px;
+  max-width: 90%;
 }
 .load-button {
   margin: .5rem 0;
