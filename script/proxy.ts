@@ -11,7 +11,7 @@ const server = http.createServer((req,res) => {
       console.log(`statusCode: ${proxyRes.statusCode}`);
       proxyRes.pipe(res);
     });
-    proxyReq!.on('error', error => {
+    proxyReq.on('error', error => {
       console.error(error);
     });
     proxyReq.end(); // terminate our message request. otherwise, servers would keep waiting for our messages.
