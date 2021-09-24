@@ -11,7 +11,12 @@ const argv = yargs(hideBin(process.argv)).parseSync();
   // static to public
   const src = path.resolve(__dirname, '..', 'static');
   const dest = path.resolve(__dirname,'..', 'public');
-  await fs.rmdir(dest, { recursive:true });
+  try {
+    await fs.access(dest);
+    await fs.rmdir(dest, { recursive:true });
+  } catch {
+    // noop
+  }
   await fs.mkdir(dest);
   const files = await fs.readdir(src);
   for (const file of files) {
