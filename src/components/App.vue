@@ -48,7 +48,7 @@ const tempCanvas = document.createElement('canvas');
 const frames = ref<ParsedFrame[]>([]);
 const frameIdx = ref(0);
 const isPlaying = ref(false);
-const images = ref<HTMLImageElement[]>([]);
+const cacheImages = ref<ImageData[]>([]);
 const barMax = computed(() => frames.value.length<1?DEFAULT_BAR_MAX:frames.value.length-1)
 const loadDone = computed(() => frames.value.length>0);
 const url = ref<string>('https://upload.wikimedia.org/wikipedia/commons/2/2c/Rotating_earth_%28large%29.gif');
@@ -91,9 +91,9 @@ function onChangeProgressBar(evt: Event) {
   const idx = +input.value;
   frameIdx.value = idx;
   setTimeout(() => {
-    u.log(images.value);
+    u.log(cacheImages.value);
     ctx.value!.clearRect(0,0,cvs.value!.width, cvs.value!.height);
-    ctx.value!.drawImage(images.value[idx],0,0);
+    ctx.value!.putImageData(cacheImages.value[idx],0,0);
   });
 }
 
@@ -106,7 +106,7 @@ function onClickLoad() {
     .then(buf => {
       const [frms, imgs] = u.loadGif(buf, cvs.value!, tempCanvas);
       frames.value = frms;
-      images.value = imgs;
+      cacheImages.value = imgs;
       loading.value = false;
     }).catch(e => {
       console.error(MESSAGES.E001, url.value, e)
@@ -143,7 +143,7 @@ function onDropGifArea(ev: DragEvent) {
   file.arrayBuffer().then(buf => {
     const [frms, imgs] = u.loadGif(buf, cvs.value!, tempCanvas);
     frames.value = frms;
-    images.value = imgs;
+    cacheImages.value = imgs;
   }).catch(e => {
     console.error(MESSAGES.E001, e);
     msgObj.value = { ...MESSAGES.E001, id: '' };

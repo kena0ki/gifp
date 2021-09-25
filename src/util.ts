@@ -22,7 +22,7 @@ function drawPatch(frm: ParsedFrame, cvs: HTMLCanvasElement, workCvs: HTMLCanvas
 }
 
 function loadGif(buf: ArrayBuffer, cvs: HTMLCanvasElement, workCanvas: HTMLCanvasElement)
-  : [ParsedFrame[], HTMLImageElement[]] {
+  : [ParsedFrame[], ImageData[]] {
   const gif = parseGIF(buf);
   const frames = decompressFrames(gif, true);
   if (frames.length === 0) {
@@ -33,31 +33,26 @@ function loadGif(buf: ArrayBuffer, cvs: HTMLCanvasElement, workCanvas: HTMLCanva
   drawPatch(frames[0], cvs!, workCanvas);
 
   let i = 0;
-  const images: HTMLImageElement[] = [];
+  const cacheImages: ImageData[] = [];
   const cacheCanvas = document.createElement('canvas');
   const cacheCtx = cacheCanvas.getContext('2d')!;
   const cacheTempCanvas = document.createElement('canvas');
   cacheCanvas.width = frames[0].dims.width;
   cacheCanvas.height = frames[0].dims.height;
+  const start = Date.now();
   cache();
   function cache() {
-    if (i >= frames.length) return;
-    drawPatch(frames[i], cacheCanvas, cacheTempCanvas);
-    // const cachedArrayData = cacheCtx.getImageData(0,0,cacheCanvas.width, cacheCanvas.height).data;
-    cacheCanvas.toBlob(makeCallback());
-    function makeCallback(): BlobCallback {
-      const cnt = i; // capture
-      return blob => {
-        const image = new Image;
-        image.src = URL.createObjectURL(blob);
-        log(cnt);
-        images[cnt] = image;
-      };
+    if (i >= frames.length) {
+      log('cache done!', `took ${Date.now() - start}ms.`);
+      return;
     }
+    drawPatch(frames[i], cacheCanvas, cacheTempCanvas);
+    const imageData = cacheCtx.getImageData(0,0,cacheCanvas.width, cacheCanvas.height);
+    cacheImages[i] = imageData;
     requestIdleCallback(cache);
     i++;
   }
-  return [frames, images];
+  return [frames, cacheImages];
 }
 
 function getDataUrl(img: HTMLImageElement) {
