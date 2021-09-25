@@ -108,6 +108,7 @@ function onClickLoad() {
       frames.value = frms;
       cacheImages.value = imgs;
       loading.value = false;
+      frameIdx.value = 0;
     }).catch(e => {
       console.error(MESSAGES.E001, url.value, e)
       msgObj.value = MESSAGES.E001;
@@ -141,9 +142,12 @@ function onDropGifArea(ev: DragEvent) {
   }
 
   file.arrayBuffer().then(buf => {
+    loading.value = true;
     const [frms, imgs] = u.loadGif(buf, cvs.value!, tempCanvas);
     frames.value = frms;
     cacheImages.value = imgs;
+    frameIdx.value = 0;
+    loading.value = false;
   }).catch(e => {
     console.error(MESSAGES.E001, e);
     msgObj.value = { ...MESSAGES.E001, id: '' };
