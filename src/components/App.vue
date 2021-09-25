@@ -92,6 +92,7 @@ function onChangeProgressBar(evt: Event) {
   frameIdx.value = idx;
   setTimeout(() => {
     u.log(images.value);
+    ctx.value!.clearRect(0,0,cvs.value!.width, cvs.value!.height);
     ctx.value!.drawImage(images.value[idx],0,0);
   });
 }

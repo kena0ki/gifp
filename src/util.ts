@@ -35,6 +35,7 @@ function loadGif(buf: ArrayBuffer, cvs: HTMLCanvasElement, workCanvas: HTMLCanva
   let i = 0;
   const images: HTMLImageElement[] = [];
   const cacheCanvas = document.createElement('canvas');
+  const cacheCtx = cacheCanvas.getContext('2d')!;
   const cacheTempCanvas = document.createElement('canvas');
   cacheCanvas.width = frames[0].dims.width;
   cacheCanvas.height = frames[0].dims.height;
@@ -42,6 +43,7 @@ function loadGif(buf: ArrayBuffer, cvs: HTMLCanvasElement, workCanvas: HTMLCanva
   function cache() {
     if (i >= frames.length) return;
     drawPatch(frames[i], cacheCanvas, cacheTempCanvas);
+    // const cachedArrayData = cacheCtx.getImageData(0,0,cacheCanvas.width, cacheCanvas.height).data;
     cacheCanvas.toBlob(makeCallback());
     function makeCallback(): BlobCallback {
       const cnt = i; // capture
