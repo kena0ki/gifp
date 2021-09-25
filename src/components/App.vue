@@ -7,7 +7,7 @@
   </div>
   <div class="message" v-if="msgObj" :message-type="msgObj.type">
     {{ msgObj.message }}
-    <div v-if="msgObj.id === 'E001'">
+    <div class="load-error" v-if="msgObj.id === 'E001'">
       Are you sure this <a :href="url" target="_brank">URL</a> is truly a GIF.
     </div>
   </div> 
@@ -233,6 +233,7 @@ function onChangeUrl(evt: Event) {
     border-radius: .3em;
     white-space: pre-wrap;
     width: 80%;
+    max-width: 500px;
 }
 .message[message-type=info] {
     color: #00529B;
@@ -253,5 +254,8 @@ function onChangeUrl(evt: Event) {
     color: #D8000C;
     background-color: #FFD2D2;
     box-shadow: 0 0 3px #D8000C;
+}
+.load-error {
+  display: block;
 }
 </style>
