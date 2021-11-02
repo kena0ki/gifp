@@ -8,14 +8,14 @@ const server = http.createServer((req,res) => {
   const target = 'https:/'+req.url;
   try {
     const proxyReq = https.request(target, proxyRes => {
-      console.log(`statusCode: ${proxyRes.statusCode}`);
+      console.log(`statusCode: ${proxyRes.statusCode}, target: ${target}`);
       proxyRes.pipe(res);
     });
     proxyReq.on('error', error => {
       console.error(error);
     });
     proxyReq.end(); // terminate our message request. otherwise, servers would keep waiting for our messages.
-  } catch(e) { 
+  } catch(e) {
     console.error(e);
     res.statusCode=500;
     res.end();
