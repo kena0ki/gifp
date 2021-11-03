@@ -31,7 +31,7 @@ const argv = yargs(hideBin(process.argv)).parseSync();
     outdir: argv.outdir as string || 'public',
     format: 'esm',
     loader: { '.svg': 'file', '.jpg': 'file' },
-    publicPath: process.env.DEBUG ? 'http://localhost:3050' : 'https://gifp.netlify.app',
+    publicPath: '/',
     plugins: [ vue3Plugin() ],
     define: {
       DEBUG: process.env.DEBUG ? 'true' : 'false',
