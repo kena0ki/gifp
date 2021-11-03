@@ -35,5 +35,8 @@
   "dependencies": {
     "gifuct-js": "^2.1.1",
     "vue": "^3.2.11"
+  },
+  "engines": {
+    "node": ">=12 <15"
   }
 }

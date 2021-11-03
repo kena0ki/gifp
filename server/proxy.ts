@@ -1,7 +1,7 @@
 import http from 'http';
 import https from 'https';
 
-const PORT = 5001;
+const PORT = process.env.PORT || 5001;
 const server = http.createServer((req,res) => {
   res.setHeader('access-control-allow-origin', '*');
   if (!req.url) return res.end();
@@ -12,11 +12,11 @@ const server = http.createServer((req,res) => {
       proxyRes.pipe(res);
     });
     proxyReq.on('error', error => {
-      console.error(error);
+      console.error('error:', error);
     });
     proxyReq.end(); // terminate our message request. otherwise, servers would keep waiting for our messages.
   } catch(e) {
-    console.error(e);
+    console.error('cause:', e);
     res.statusCode=500;
     res.end();
   }
