@@ -62,6 +62,10 @@ const loading = ref(false);
 
 onMounted(() =>{
   ctx.value = cvs.value!.getContext('2d')!;
+  if (location.pathname?.length > 1) {
+    url.value = 'https:/' + location.pathname;
+    onClickLoad();
+  }
 });
 
 function onClickPlay() {
@@ -103,7 +107,8 @@ function onChangeProgressBar(evt: Event) {
 function onClickLoad() {
   msgObj.value = undefined;
   loading.value = true;
-  const targetUrl = c.PROXY_HOST + '/' + url.value.replace(/https?:\/\//,'');
+  const targetUrl = c.PROXY_ORIGIN + '/' + url.value.replace(/https?:\/\//,'');
+  history.pushState({}, document.title, '/' + url.value.replace(/https?:\/\//,''));
   fetch(targetUrl)
     .then(resp => resp.arrayBuffer())
     .then(buf => {

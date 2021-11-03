@@ -31,9 +31,12 @@ const argv = yargs(hideBin(process.argv)).parseSync();
     outdir: argv.outdir as string || 'public',
     format: 'esm',
     loader: { '.svg': 'file', '.jpg': 'file' },
-    // publicPath: 'static',
+    publicPath: process.env.DEBUG ? 'http://localhost:3050' : 'https://gifp.netlify.app',
     plugins: [ vue3Plugin() ],
-    define: { DEBUG: process.env.DEBUG ? 'true' : 'false' },
+    define: {
+      DEBUG: process.env.DEBUG ? 'true' : 'false',
+      PROXY_ORIGIN: process.env.DEBUG ? '"http://localhost:3051"' : '"https://cors.znoo.xyz"',
+    },
   }).catch(() => process.exit(1));
 })();
 

@@ -7,7 +7,8 @@
     "// build": "esr -P ./script/tsconfig.json ./script/build.ts",
     "build": "esr ./script/build.ts",
     "watch": "chokidar \"src/**/*\" -c \"DEBUG=true npm run build\" --initial --debounce 1000",
-    "serve": "serve public",
+    "_serve": "serve -p 3050 -c ../serve.json public",
+    "serve": "http-server ./public -p 3050 --proxy http://localhost:3050? ",
     "proxy": "esr ./server/proxy.ts",
     "start": "concurrently -p '{time} {name}' -t 'HH:mm:ss.SSS' -c green,yellow,blue  npm:watch npm:serve npm:proxy"
   },
@@ -24,10 +25,11 @@
     "@typescript-eslint/parser": "^4.31.0",
     "chokidar-cli": "^3.0.0",
     "concurrently": "^6.2.1",
-    "esbuild-plugin-vue-iii": "^0.5.0",
     "esbuild": "^0.12.26",
+    "esbuild-plugin-vue-iii": "^0.5.0",
     "esbuild-runner": "^2.2.1",
     "eslint": "^7.32.0",
+    "http-server": "^14.0.0",
     "serve": "^12.0.1",
     "typescript": "^4.4.2",
     "yargs": "^17.1.1"
