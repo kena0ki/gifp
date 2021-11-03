@@ -1,4 +1,7 @@
 <template>
+  <h4 class="head">
+   {{ "Click the load button below.\nYou can play and stop animated GIF files hosted on the Web." }}
+  </h4>
   <div class="input-url-container">
     <InputText class="input-url" :value="url" @change="onChangeUrl"/>
   </div>
@@ -21,7 +24,7 @@
     </div>
   </div>
   <div class="gif-area" @drop="onDropGifArea" @dragover="onDragoverGifArea">
-    <div class="gif-placeholder" v-if="!loadDone && !loading">Load a GIF file from a URL.</div>
+    <div class="gif-placeholder" v-if="!loadDone && !loading">GIF files are renderd here!</div>
     <img v-if="loading" src="../assets/waiting-icon-gif-20.jpg" />
     <canvas v-show="loadDone && !loading" ref="cvs"></canvas>
   </div>
@@ -52,9 +55,9 @@ const cacheImages = ref<ImageData[]>([]);
 const barMax = computed(() => frames.value.length<1?DEFAULT_BAR_MAX:frames.value.length-1)
 const loadDone = computed(() => frames.value.length>0);
 const url = ref<string>('https://upload.wikimedia.org/wikipedia/commons/2/2c/Rotating_earth_%28large%29.gif');
-// https://upload.wikimedia.org/wikipedia/commons/2/2c/Rotating_earth_%28large%29.gif
-// https://raw.githubusercontent.com/k0kubun/sqldef/master/demo.gif
+// https://upload.wikimedia.org/wikipedia/commons/d/dc/BITDemo.gif
 // https://onlineimagetools.com/images/examples-onlineimagetools/owl-flying-animated.gif
+// https://github.com/vmarcosp/findr/blob/master/assets/find.gif?raw=true
 const loading = ref(false);
 
 onMounted(() =>{
@@ -169,6 +172,9 @@ function onChangeUrl(evt: Event) {
 </script>
 
 <style>
+.head {
+  white-space: pre-wrap;
+}
 .square_btn {
     display: inline-block;
     padding: 0.3em 1em;
@@ -210,7 +216,6 @@ function onChangeUrl(evt: Event) {
 .input-url-container {
   flex-direction: row;
   align-self: stretch;
-  margin-top: 2rem;
   margin-bottom: .5rem;
   justify-content: center;
 }
