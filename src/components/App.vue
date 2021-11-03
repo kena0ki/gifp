@@ -1,6 +1,6 @@
 <template>
   <h4 class="head">
-   {{ "Click the load button below.\nYou can play and stop animated GIF files hosted on the Web." }}
+   {{ "Input an URL and click the load button below.\nYou can play and stop animated GIF files hosted on the Web." }}
   </h4>
   <div class="input-url-container">
     <InputText class="input-url" :value="url" @change="onChangeUrl"/>
